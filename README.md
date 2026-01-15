@@ -150,7 +150,13 @@ Notice how the enhanced approach provides:
 - History persists across app reloads
 - Access previous Q&A sessions anytime
 - Clear history with one click
-ore Classes:
+
+## 📊 The Sales Domain Ontology
+
+### Classes Hierarchy
+
+```
+Core Classes:
 Customer
 ├── EnterpriseCustomer      (Large organizations)
 ├── MidMarketCustomer       (Medium businesses)
@@ -175,7 +181,13 @@ Reasoning Concepts (for WHY questions):
 ├── IndustryFit           (Industry-product match)
 ├── DiscountSensitive     (Discount-responsive)
 ├── SeasonalDemand        (Time-based patterns)
-└tandard Properties:
+└── CustomerRetention     (Repeat purchase behavior)
+```
+
+### Key Relationships
+
+```
+Standard Properties:
 Sale → soldTo → Customer
 Sale → soldBy → SalesRepresentative
 Sale → productSold → Product
@@ -188,19 +200,7 @@ Causal Properties (for reasoning):
 → causedBy:           Identifies root causes
 → influences:         Shows influence factors
 → correlatesWith:     Reveals correlations
-→ indicatesPreference: Customer preferencesor)
-```
-
-### Key Relationships
-
-```
-Sale → soldTo → Customer
-Sale → soldBy → SalesRepresentative
-Sale → productSold → Product
-Customer → locatedIn → Region
-Customer → belongsToIndustry → Industry
-Product → belongsToCategory → Category
-SalesRepresentative → operatesIn → Region
+→ indicatesPreference: Customer preferences
 ```
 
 ### Sample Data
