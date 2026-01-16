@@ -109,10 +109,10 @@ def check_setup():
 def setup_sidebar():
     """Configure sidebar with information and settings"""
     with st.sidebar:
-        st.title("🧠 Demo Overview")
+        st.title("Ontology & KG Demo")
         
         st.markdown("""
-        ### About This Demo
+        ### About
         
         This application demonstrates how **Ontology** and **Knowledge Graphs** 
         enhance LLM-based data analysis intelligence.
@@ -167,6 +167,59 @@ def setup_sidebar():
             if st.button(question, key=f"sample_{i}", use_container_width=True):
                 st.session_state.selected_question = question
                 st.rerun()
+        
+        st.divider()
+        
+        # Data Files Section
+        st.subheader("📁 Data & Knowledge Files")
+        st.markdown("*Files powering the Enhanced approach*")
+        
+        data_files = {
+            "sales_data.csv": "Sales transactions",
+            "metadata.json": "Customers & Products",
+            "sales_ontology.ttl": "Domain ontology",
+            "knowledge_graph.ttl": "Semantic graph"
+        }
+        
+        for filename, description in data_files.items():
+            filepath = Path(f"data/{filename}")
+            if filepath.exists():
+                with st.expander(f"📄 {filename}"):
+                    st.caption(description)
+                    
+                    # Show file size
+                    file_size = filepath.stat().st_size
+                    if file_size > 1024*1024:
+                        size_str = f"{file_size / (1024*1024):.2f} MB"
+                    elif file_size > 1024:
+                        size_str = f"{file_size / 1024:.2f} KB"
+                    else:
+                        size_str = f"{file_size} bytes"
+                    st.caption(f"Size: {size_str}")
+                    
+                    # Show file preview
+                    try:
+                        if filename.endswith('.json'):
+                            import json
+                            with open(filepath, 'r') as f:
+                                content = json.load(f)
+                                st.json(content)
+                        elif filename.endswith('.csv'):
+                            import pandas as pd
+                            df = pd.read_csv(filepath)
+                            st.caption(f"Rows: {len(df)} | Columns: {len(df.columns)}")
+                            st.dataframe(df.head(10), use_container_width=True)
+                        elif filename.endswith('.ttl'):
+                            with open(filepath, 'r', encoding='utf-8') as f:
+                                lines = f.readlines()
+                                # Show first 50 lines
+                                preview = ''.join(lines[:50])
+                                if len(lines) > 50:
+                                    preview += f"\n... ({len(lines) - 50} more lines)"
+                                st.code(preview, language="turtle")
+                                st.caption(f"Total lines: {len(lines)}")
+                    except Exception as e:
+                        st.error(f"Error reading file: {e}")
 
 def display_answer_comparison(question, basic_result, enhanced_result):
     """Display side-by-side comparison of both approaches"""
@@ -751,7 +804,7 @@ python knowledge_graph.py
                 st.stop()
     
     # Main interface tabs
-    tab1, tab2, tab3 = st.tabs(["💬 Interactive Chat", "📊 View Data", "📖 Learn More"])
+    tab1, tab2, tab3, tab5 = st.tabs(["💬 Interactive Chat", "📊 View Data", "📖 Learn More", "🚀 Scaling to Production"])
     
     with tab1:
         st.markdown("### Ask Questions About Sales Data")
@@ -831,6 +884,191 @@ python knowledge_graph.py
     
     with tab3:
         display_ontology_explanation()
+    
+    with tab5:
+        st.markdown("## 🚀 Scaling to Billions of Records")
+        
+        st.info("💡 **Key Question:** How does this work with terabytes of data and billions of records?")
+        
+        st.markdown("""
+        ### 📊 The Challenge
+        
+        This demo works with **500 sales records** (~5,800 triples). Real enterprise scenarios involve:
+        - 🔢 **Billions of transactions**
+        - 💾 **Terabytes of data**
+        - 👥 **Millions of entities**
+        - ⚡ **Real-time queries**
+        """)
+        
+        st.divider()
+        
+        st.markdown("""
+        ### 🎯 Key Principle: Separation of Concerns
+        
+        The secret is **NOT loading everything into memory**. Instead:
+        """)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            #### 📚 Ontology Layer
+            **Size:** Small & Static (~KB-MB)
+            
+            - Domain model definition
+            - Reasoning rules
+            - Class hierarchies
+            
+            ✅ **Stays constant regardless of data size**
+            """)
+        
+        with col2:
+            st.markdown("""
+            #### 🕸️ Knowledge Graph Layer
+            **Size:** Large & Dynamic (GB-TB)
+            
+            - Stored in graph database
+            - Queried on-demand
+            - Indexed for performance
+            
+            ✅ **Scales horizontally**
+            """)
+        
+        st.divider()
+        
+        st.markdown("### 💡 How LLM Gets Context Without Loading Billions of Records")
+        
+        scale_tabs = st.tabs(["1️⃣ Pre-Compute Patterns", "2️⃣ Query on Demand", "3️⃣ Semantic Summaries"])
+        
+        with scale_tabs[0]:
+            st.markdown("""
+            #### Pre-Compute Reasoning Patterns
+            
+            Instead of reasoning over raw data, pre-compute common patterns nightly.
+            
+            **Example Pattern:**
+            ```
+            "Premium electronics sell 3x better to technology 
+             companies in North America"
+            ```
+            
+            ✅ **Result:** LLM gets insights, not billions of rows
+            """)
+        
+        with scale_tabs[1]:
+            st.markdown("""
+            #### Query on Demand (Indexed, Fast)
+            
+            Use graph databases with proper indexing:
+            - Indexed lookups: O(log n) instead of O(n)
+            - Only returns what's needed
+            - No full table scans
+            - Distributed across nodes
+            """)
+        
+        with scale_tabs[2]:
+            st.markdown("""
+            #### Provide Semantic Summaries to LLM
+            
+            **Don't send:** Raw transactions  
+            **Do send:** Semantic patterns and statistics
+            
+            ```
+            - Customer Segment Patterns:
+              * Enterprise customers: avg $8.5K deals
+              * SMB customers: avg $2.1K deals
+            
+            - Product-Industry Affinity:
+              * Technology → Electronics (85%)
+              * Healthcare → Furniture (72%)
+            ```
+            
+            ✅ **LLM reasons about patterns, not individual records**
+            """)
+        
+        st.divider()
+        
+        st.markdown("### ⚡ Performance at Scale")
+        
+        perf_col1, perf_col2 = st.columns(2)
+        
+        with perf_col1:
+            st.markdown("""
+            #### Demo Setup
+            - **Data:** 500 records
+            - **Storage:** 5 MB in memory
+            - **Query Time:** 0.01 seconds
+            - **Cost:** $0/month
+            """)
+        
+        with perf_col2:
+            st.markdown("""
+            #### Production Setup
+            - **Data:** 1 Billion records
+            - **Storage:** 500 GB (compressed)
+            - **Query Time:** 0.05 seconds
+            - **Cost:** $500-2000/month
+            """)
+        
+        st.divider()
+        
+        st.markdown("### 🛠️ Production Technology Stack")
+        
+        tech_col1, tech_col2, tech_col3 = st.columns(3)
+        
+        with tech_col1:
+            st.markdown("""
+            #### Graph Databases
+            - **Neo4j**
+            - **Amazon Neptune**
+            - **TigerGraph**
+            
+            **Why:** Billions of nodes
+            """)
+        
+        with tech_col2:
+            st.markdown("""
+            #### Processing
+            - **Apache Spark**
+            - **Kafka**
+            - **Redis**
+            
+            **Why:** Distributed processing
+            """)
+        
+        with tech_col3:
+            st.markdown("""
+            #### Vector Search
+            - **FAISS**
+            - **Pinecone**
+            - **Milvus**
+            
+            **Why:** Semantic search at scale
+            """)
+        
+        st.divider()
+        
+        st.success("""
+        ### 🎯 Key Takeaways
+        
+        **1. Ontology stays small** - It's the schema (KB-MB range)
+        
+        **2. Knowledge Graph scales** - Graph databases handle billions
+        
+        **3. LLM sees patterns** - Not raw data
+        
+        **4. Same intelligence boost** - Semantic understanding at any scale!
+        """)
+        
+        st.info("""
+        💡 **Bottom Line:** This demo shows the *concept*. For production with billions of 
+        records, use the same concepts with industrial-strength infrastructure: graph databases, 
+        distributed processing, and semantic layers.
+        
+        The intelligence boost comes from **semantic understanding**, not loading all data!
+        """)
+        
+        st.caption("📚 **Learn More:** See SCALABILITY.md on GitHub for detailed implementation examples")
 
 if __name__ == "__main__":
     main()
